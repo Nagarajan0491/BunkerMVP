@@ -1,0 +1,58 @@
+@use '@angular/material' as mat;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: 'Inter',
+    density: 0,
+  ));
+}
+
+body {
+  color-scheme: light;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #F8FAFC;
+}
+
+* { box-sizing: border-box; }
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.Draft { background: #F1F5F9; color: #64748B; }
+  &.Open { background: #EFF6FF; color: #2563EB; }
+  &.Quoted { background: #FFFBEB; color: #D97706; }
+  &.Ordered { background: #F0FDF4; color: #16A34A; }
+  &.Cancelled { background: #FEF2F2; color: #DC2626; }
+}
+
+.page-container {
+  padding: 24px;
+}
+
+.mat-elevation-z2 {
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08) !important;
+}
+
+.fab-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 100;
+}
+
+tr.mat-mdc-row:hover {
+  background: #F8FAFC;
+  cursor: pointer;
+}

@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+*.suo
+*.swp
+
+# Secrets / local config
+appsettings.Development.json
+*.pfx
+
+# Node / Angular
+bunker-frontend/node_modules/
+bunker-frontend/dist/
+bunker-frontend/.angular/
+
+# Claude memory (local only)
+.claude/
