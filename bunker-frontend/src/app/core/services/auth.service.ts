@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { UserInfo, LoginRequest, LoginResponse } from '../models';
 
 const API_BASE = 'http://localhost:5005/api';
@@ -20,6 +21,10 @@ export class AuthService {
 
   login(credentials: LoginRequest) {
     return this.http.post<LoginResponse>(`${API_BASE}/auth/login`, credentials, { withCredentials: true });
+  }
+
+  verifySession(): Observable<any> {
+    return this.http.get(`${API_BASE}/auth/me`, { withCredentials: true });
   }
 
   setUser(user: UserInfo) {

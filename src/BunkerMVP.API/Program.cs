@@ -1,4 +1,5 @@
 using BunkerMVP.API.Middleware;
+using BunkerMVP.API.Services;
 using BunkerMVP.Infrastructure.Data;
 using BunkerMVP.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -38,9 +39,10 @@ builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(8);
     options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+    options.Cookie.SameSite = SameSiteMode.Lax;  
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None;  // Set to None for local dev (use Always in production with HTTPS)
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = ".BunkerMVP.Session";  // Explicit cookie name
 });
 
 builder.Services.AddControllers();
@@ -49,6 +51,8 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "BunkerMVP API", Version = "v1" });
 });
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<ChatbotActionRegistrar>();
 
 var app = builder.Build();
 

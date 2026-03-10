@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { SidebarComponent } from '../sidebar/sidebar';
 import { HeaderComponent } from '../header/header';
+import { ChatbotPluginModule } from 'chatbot-plugin';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, MatSidenavModule, SidebarComponent, HeaderComponent],
+  imports: [RouterOutlet, MatSidenavModule, SidebarComponent, HeaderComponent, ChatbotPluginModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <mat-sidenav-container class="shell-container">
       <mat-sidenav mode="side" opened class="sidebar">
@@ -20,6 +22,7 @@ import { HeaderComponent } from '../header/header';
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
+    <chatbot-widget [theme]="'floating'" [hostAppId]="'bunker-mvp'"></chatbot-widget>
   `,
   styles: [`
     .shell-container { height: 100vh; }

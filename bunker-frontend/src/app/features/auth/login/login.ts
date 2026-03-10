@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { switchMap, delay, of } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -80,18 +81,25 @@ export class LoginComponent {
     this.loading = true;
     this.error = '';
     const { username, password } = this.form.value;
-    this.auth.login({ username: username!, password: password! }).subscribe({
-      next: (res) => {
+    this.auth.login({ username: username!, password: password! }).pipe(
+      switchMap(res => {
         if (res.success && res.user) {
           this.auth.setUser(res.user);
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.error = res.message;
+          // Verify session is established before navigation with longer delay
+          return this.auth.verifySession().pipe(delay(200));
         }
-        this.loading = false;
+        throw new Error(res.message);
+      })
+    ).subscribe({
+      next: () => {
+        // Force a slight delay before navigation to ensure session cookie is set
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+          this.loading = false;
+        }, 100);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Login failed. Please try again.';
+        this.error = err.error?.message || err.message || 'Login failed. Please try again.';
         this.loading = false;
       }
     });

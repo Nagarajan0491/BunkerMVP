@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize } from 'rxjs';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { DashboardStatsDto } from '../../core/models';
 
@@ -83,12 +84,20 @@ export class DashboardComponent implements OnInit {
   loading = true;
   error = false;
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    this.dashboardService.getStats().subscribe({
-      next: s => { this.stats = s; this.loading = false; },
-      error: () => { this.error = true; this.loading = false; }
+    this.dashboardService.getStats().pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: s => this.stats = s,
+      error: () => this.error = true
     });
   }
 }

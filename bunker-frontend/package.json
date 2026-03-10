@@ -11,6 +11,8 @@
   "private": true,
   "packageManager": "npm@10.8.2",
   "dependencies": {
+    "chatbot-plugin": "file:../../ClaudeCode/ChatbotSystem/chatbot-app/dist/chatbot-plugin",
+    "marked": "^15.0.0",
     "@angular/animations": "^21.2.1",
     "@angular/cdk": "^21.2.1",
     "@angular/common": "^21.2.0",

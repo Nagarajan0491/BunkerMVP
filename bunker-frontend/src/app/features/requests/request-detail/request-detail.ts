@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize } from 'rxjs';
 import { BunkerRequestService } from '../../../core/services/bunker-request.service';
 import { BunkerRequestDto, SupplierQuoteDto } from '../../../core/models';
 import { AddQuoteDialogComponent } from '../add-quote-dialog/add-quote-dialog';
@@ -24,67 +25,77 @@ import { CreateRequestDialogComponent } from '../create-request-dialog/create-re
         </button>
       </div>
 
-      <div *ngIf="loading" class="loading-state">
-        <mat-spinner diameter="40"></mat-spinner>
-        <span>Loading request...</span>
-      </div>
+      @if (loading) {
+        <div class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <span>Loading request...</span>
+        </div>
+      }
 
-      <div *ngIf="!loading && !request" class="error-state">
-        <mat-icon>error_outline</mat-icon>
-        <span>Request not found.</span>
-      </div>
+      @if (!loading && !request) {
+        <div class="error-state">
+          <mat-icon>error_outline</mat-icon>
+          <span>Request not found.</span>
+        </div>
+      }
 
-      <ng-container *ngIf="request">
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-card-title>Request #{{ request.id }}</mat-card-title>
-          <mat-card-subtitle>
-            <span class="status-chip {{ request.status }}">{{ request.status }}</span>
-          </mat-card-subtitle>
-          <span class="header-spacer"></span>
-          <button mat-stroked-button color="primary" *ngIf="request.status !== 'Ordered'" (click)="openEditDialog()">
-            <mat-icon>edit</mat-icon> Edit
-          </button>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="info-grid">
-            <div class="info-item"><label>Vessel</label><span>{{ request.vesselName }}</span></div>
-            <div class="info-item"><label>Product</label><span>{{ request.productName }}</span></div>
-            <div class="info-item"><label>Location</label><span>{{ request.locationName }}</span></div>
-            <div class="info-item"><label>Quantity</label><span>{{ request.quantity | number }} {{ request.productUnit }}</span></div>
-            <div class="info-item"><label>ETA</label><span>{{ request.eta | date:'mediumDate' }}</span></div>
-            <div class="info-item"><label>Created</label><span>{{ request.createdAt | date:'medium' }}</span></div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <div class="section-header">
-        <h3>Quotes ({{ quotes.length }})</h3>
-        <button mat-stroked-button color="primary" (click)="openAddQuote()" [disabled]="request.status === 'Ordered'">
-          <mat-icon>add</mat-icon> Add Quote
-        </button>
-      </div>
-
-      <mat-card class="table-card" *ngIf="quotes.length > 0">
-        <table mat-table [dataSource]="quotes" class="full-width">
-          <ng-container matColumnDef="supplier"><th mat-header-cell *matHeaderCellDef>Supplier</th><td mat-cell *matCellDef="let q">{{ q.supplierName }}</td></ng-container>
-          <ng-container matColumnDef="price"><th mat-header-cell *matHeaderCellDef>Price/MT</th><td mat-cell *matCellDef="let q">{{ q.price | number:'1.2-2' }} {{ q.currency }}</td></ng-container>
-          <ng-container matColumnDef="validUntil"><th mat-header-cell *matHeaderCellDef>Valid Until</th><td mat-cell *matCellDef="let q">{{ q.validUntil | date:'mediumDate' }}</td></ng-container>
-          <ng-container matColumnDef="notes"><th mat-header-cell *matHeaderCellDef>Notes</th><td mat-cell *matCellDef="let q">{{ q.notes }}</td></ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let q">
-              <button mat-flat-button color="primary" (click)="createOrder(q)" [disabled]="request.status === 'Ordered'" style="font-size:12px;height:32px;line-height:32px;">
-                Create Order
+      @if (request) {
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>Request #{{ request.id }}</mat-card-title>
+            <mat-card-subtitle>
+              <span class="status-chip {{ request.status }}">{{ request.status }}</span>
+            </mat-card-subtitle>
+            <span class="header-spacer"></span>
+            @if (request.status !== 'Ordered') {
+              <button mat-stroked-button color="primary" (click)="openEditDialog()">
+                <mat-icon>edit</mat-icon> Edit
               </button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="quoteColumns"></tr>
-          <tr mat-row *matRowDef="let q; columns: quoteColumns;"></tr>
-        </table>
-      </mat-card>
-      <p *ngIf="quotes.length === 0" class="no-data">No quotes yet. Add the first quote.</p>
-      </ng-container>
+            }
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item"><label>Vessel</label><span>{{ request.vesselName }}</span></div>
+              <div class="info-item"><label>Product</label><span>{{ request.productName }}</span></div>
+              <div class="info-item"><label>Location</label><span>{{ request.locationName }}</span></div>
+              <div class="info-item"><label>Quantity</label><span>{{ request.quantity | number }} {{ request.productUnit }}</span></div>
+              <div class="info-item"><label>ETA</label><span>{{ request.eta | date:'mediumDate' }}</span></div>
+              <div class="info-item"><label>Created</label><span>{{ request.createdAt | date:'medium' }}</span></div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="section-header">
+          <h3>Quotes ({{ quotes.length }})</h3>
+          <button mat-stroked-button color="primary" (click)="openAddQuote()" [disabled]="request.status === 'Ordered'">
+            <mat-icon>add</mat-icon> Add Quote
+          </button>
+        </div>
+
+        @if (quotes.length > 0) {
+          <mat-card class="table-card">
+            <table mat-table [dataSource]="quotes" class="full-width">
+              <ng-container matColumnDef="supplier"><th mat-header-cell *matHeaderCellDef>Supplier</th><td mat-cell *matCellDef="let q">{{ q.supplierName }}</td></ng-container>
+              <ng-container matColumnDef="price"><th mat-header-cell *matHeaderCellDef>Price/MT</th><td mat-cell *matCellDef="let q">{{ q.price | number:'1.2-2' }} {{ q.currency }}</td></ng-container>
+              <ng-container matColumnDef="validUntil"><th mat-header-cell *matHeaderCellDef>Valid Until</th><td mat-cell *matCellDef="let q">{{ q.validUntil | date:'mediumDate' }}</td></ng-container>
+              <ng-container matColumnDef="notes"><th mat-header-cell *matHeaderCellDef>Notes</th><td mat-cell *matCellDef="let q">{{ q.notes }}</td></ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let q">
+                  <button mat-flat-button color="primary" (click)="createOrder(q)" [disabled]="request.status === 'Ordered'" style="font-size:12px;height:32px;line-height:32px;">
+                    Create Order
+                  </button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="quoteColumns"></tr>
+              <tr mat-row *matRowDef="let q; columns: quoteColumns;"></tr>
+            </table>
+          </mat-card>
+        }
+        @if (quotes.length === 0) {
+          <p class="no-data">No quotes yet. Add the first quote.</p>
+        }
+      }
     </div>
   `,
   styles: [`
@@ -113,7 +124,8 @@ export class RequestDetailComponent implements OnInit {
     private route: ActivatedRoute,
     public router: Router,
     private service: BunkerRequestService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -124,16 +136,21 @@ export class RequestDetailComponent implements OnInit {
 
   loadRequest(id: number) {
     this.loading = true;
-    this.service.getById(id).subscribe({
-      next: r => { this.request = r; this.loading = false; },
-      error: () => { this.loading = false; }
+    this.service.getById(id).pipe(
+      finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: r => this.request = r,
+      error: err => console.error('Failed to load request:', err)
     });
   }
 
   loadQuotes(id: number) {
     this.service.getQuotes(id).subscribe({
       next: q => this.quotes = q ?? [],
-      error: () => { this.quotes = []; }
+      error: () => this.quotes = []
     });
   }
 

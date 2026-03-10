@@ -24,6 +24,10 @@ public class AuthController : ControllerBase
 
         HttpContext.Session.SetString("UserId", result.User!.Id.ToString());
         HttpContext.Session.SetString("Username", result.User.Username);
+        
+        // Commit session immediately to ensure it's available for subsequent requests
+        await HttpContext.Session.CommitAsync();
+        
         return Ok(result);
     }
 
