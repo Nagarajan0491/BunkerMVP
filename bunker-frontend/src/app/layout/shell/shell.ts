@@ -1,9 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { SidebarComponent } from '../sidebar/sidebar';
 import { HeaderComponent } from '../header/header';
 import { ChatbotPluginModule } from 'chatbot-plugin';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-shell',
@@ -22,7 +23,11 @@ import { ChatbotPluginModule } from 'chatbot-plugin';
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
-    <chatbot-widget [theme]="'floating'" [hostAppId]="'bunker-mvp'"></chatbot-widget>
+    <chatbot-widget
+      [theme]="'floating'"
+      [hostAppId]="'bunker-mvp'"
+      [userId]="authService.user()?.id?.toString() ?? ''">
+    </chatbot-widget>
   `,
   styles: [`
     .shell-container { height: 100vh; }
@@ -31,4 +36,6 @@ import { ChatbotPluginModule } from 'chatbot-plugin';
     .content-area { flex: 1; overflow-y: auto; }
   `]
 })
-export class ShellComponent {}
+export class ShellComponent {
+  authService = inject(AuthService);
+}

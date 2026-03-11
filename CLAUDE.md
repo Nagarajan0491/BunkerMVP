@@ -41,7 +41,7 @@ dotnet ef database update --project src/BunkerMVP.Infrastructure --startup-proje
 ```bash
 cd bunker-frontend
 npm install
-ng serve          # dev server on http://localhost:4200
+ng serve          # dev server on http://localhost:4300
 ng build          # production build
 ng test           # run tests (vitest)
 ```
@@ -114,4 +114,4 @@ bunker-frontend/src/app/
 
 ### CORS
 
-The backend allows `http://localhost:4200` and `http://localhost:52716`. If running the Angular dev server on a different port, add it to the `WithOrigins(...)` call in `Program.cs`.
+The backend allows `http://localhost:4300` and `http://localhost:52716`. If running the Angular dev server on a different port, add it to the `WithOrigins(...)` call in `Program.cs`.
